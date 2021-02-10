@@ -28,7 +28,7 @@ export default class ItemRequestScreen extends React.Component{
         itemName:"",
          reasonTorequest:""
     })
-    return Alert.alert("book requested succesfully")
+    return Alert.alert("item requested succesfully")
     }
     render(){
         return(

@@ -1,87 +1,105 @@
-import React from 'react';
-import { StyleSheet, Text, View, Image,TextInput,FlatList, Alert,Modal,ScrollView, TouchableOpacity, KeyboardAvoidingView } from 'react-native';
-import   firebase from 'firebase'
-import db from '../db'
-import MyHeader from '../components/Myheader'
-import { ListItem } from 'react-native-elements';
-export default class ItemDonateScreen extends React.Component{
-constructor(){
+import React, { Component } from 'react';
+import { View, StyleSheet, Text, FlatList,TouchableOpacity } from 'react-native';
+import { ListItem } from 'react-native-elements'
+import firebase from 'firebase';
+import db from '../config'
+import MyHeader from '../components/MyHeader';
+
+export default class ItemDonateScreen extends Component{
+  constructor(){
     super()
-    this.state={
-        requesteditemslist:[],
-
+    this.state = {
+      userId  : firebase.auth().currentUser.email,
+      requesteditemsList : []
     }
-    this.requestref=null
-}
-getrequestedstorylist=()=>{
-    this.requestref=db.collection("requestedItems").onSnapshot((snapshot)=>{
-        var requesteditemsList=snapshot.docs.map(document=>document.data())
-        this.setState({
-            requesteditemslist:requesteditemsList
-        })
+  this.requestRef= null
+  }
+
+  getRequestedBooksList =()=>{
+    this.requestRef = db.collection("requested_items")
+    .onSnapshot((snapshot)=>{
+      var requestedBooksList = snapshot.docs.map((doc) => doc.data())
+      this.setState({
+        requestedBooksList : requestedBooksList
+      });
     })
-}
-componentDidMount(){
-    this.getrequesteditemslist()
-}
-componentWillUnmount(){
-    this.requestref()
-}
-keyExtractor=(item,index)=>{
-    index.toString()
-}
-renderItem=({item,i})=>{
-return(
-    <ListItem key={i} title={item.bookName}subtitle={item.reasontorequest}titleStyle={{color:"black",fontWeight:"bold"}}rightElement={
-    <TouchableOpacity style={styles.button} onPress={()=>{this.props.navigation.navigate("RecieverDetails",{"details":item})}}>
-        <Text style={{color:"#FFFF"}}>
-            view 
-        </Text>
-        </TouchableOpacity>}bottomDivider> 
-        </ListItem>
-)
+  }
 
-}
-render(){
-    return(
-        <View style={{flex:1}}>
-       <MyHeader title="donate books" navigation={this.props.navigation}>
-        </MyHeader>
-        <View style={{flex:1}}>
-        {
-            this.state.requestedItemslist.length===0 ? (
-                <View style={styles.subcontainer}> 
-                <Text style={{fontSize:20}}> you have no book request</Text>
-                </View>
-            )
-            : (
-                <FlatList keyExtractor={this.keyExtractor}data={this.state.requestedItemslist} renderItem={this.renderItem}>  </FlatList>
-            )
-        }
-        </View>
-        </View>
+  componentDidMount(){
+    this.getRequestedBooksList()
+  }
+
+  componentWillUnmount(){
+    this.requestRef();
+  }
+
+  keyExtractor = (item, index) => index.toString()
+
+  renderItem = ( {item, i} ) =>{
+    return (
+      <ListItem
+        key={i}
+        bottomDivider>
+        <ListItem.Content>
+            <ListItem.Title>{item.book_name}</ListItem.Title>
+       
+            <TouchableOpacity style={styles.button}
+              onPress ={()=>{
+                this.props.navigation.navigate("RecieverDetails",{"details": item})
+              }}
+              >
+              <Text style={{color:'#ffff'}}>View</Text>
+            </TouchableOpacity>
+          
+</ListItem.Content>
+       
+      </ListItem>
     )
-}
-}
-const styles=StyleSheet.create({
-    subcontainer:{
-        flex:1,
-        fontSize:20,
-        justifyContent:"center",
-        alingItems:"center"
-     },
-     button:{
+  }
 
-        width:300,
-        height:50,
-        justifyContent:"center",
-        alingItems:"center",
-        borderRadius:25,
-        backgroundColor:"red",
-        shadowColor:"#000",
-        shadowOffset:{width:0,height:8},
-        shadowOpacity:0.3,
-        shadowRadius:10,
-        elevation:16
-         }
+  render(){
+    return(
+      <View style={{flex:1}}>
+        <MyHeader title="Donate items" navigation ={this.props.navigation}/>
+        <View style={{flex:1}}>
+          {
+            this.state.requesteditemsList.length === 0
+            ?(
+              <View style={styles.subContainer}>
+                <Text style={{ fontSize: 20}}>List Of All Requested Books</Text>
+              </View>
+            )
+            :(
+              <FlatList
+                keyExtractor={this.keyExtractor}
+                data={this.state.requesteditemsList}
+                renderItem={this.renderItem}
+              />
+            )
+          }
+        </View>
+      </View>
+    )
+  }
+}
+
+const styles = StyleSheet.create({
+  subContainer:{
+    flex:1,
+    fontSize: 20,
+    justifyContent:'center',
+    alignItems:'center'
+  },
+  button:{
+    width:100,
+    height:30,
+    justifyContent:'center',
+    alignItems:'center',
+    backgroundColor:"#ff5722",
+    shadowColor: "#000",
+    shadowOffset: {
+       width: 0,
+       height: 8
+     }
+  }
 })
